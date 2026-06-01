@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <fieldset name="product-details">
+        <container name="container_special_price_color">
+            <field name="special_price_color" formElement="colorPicker">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="source" xsi:type="string">product</item>
+                        <item name="dataScope" xsi:type="string">special_price_color</item>
+                    </item>
+                </argument>
+                <settings>
+                    <dataType>text</dataType>
+                    <label translate="true">Special Price Color</label>
+                    <notice translate="true">Use a hex color such as #FFF or #FFFFFF.</notice>
+                    <componentType>colorPicker</componentType>
+                    <placeholder translate="true">No Color</placeholder>
+                    <validation>
+                        <rule name="validate-color" xsi:type="boolean">true</rule>
+                    </validation>
+                    <dataScope>special_price_color</dataScope>
+                    <required>false</required>
+                    <visible>true</visible>
+                    <additionalClasses>
+                        <class name="admin__field-medium">true</class>
+                    </additionalClasses>
+                </settings>
+                <formElements>
+                    <colorPicker>
+                        <settings>
+                            <colorPickerMode>full</colorPickerMode>
+                            <colorFormat>hex</colorFormat>
+                        </settings>
+                    </colorPicker>
+                </formElements>
+            </field>
+        </container>
+    </fieldset>
+</form>

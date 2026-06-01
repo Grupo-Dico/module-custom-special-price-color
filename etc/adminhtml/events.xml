@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="admin_system_config_changed_section_special_price_color">
+        <observer name="leancommerce_custom_special_price_color_config_cache"
+                  instance="LeanCommerce\CustomSpecialPriceColor\Observer\FlushCacheOnConfigSave"/>
+    </event>
+    <event name="catalog_product_save_after">
+        <observer name="leancommerce_custom_special_price_color_product_cache"
+                  instance="LeanCommerce\CustomSpecialPriceColor\Observer\FlushCacheOnProductSave"/>
+    </event>
+    <event name="catalog_category_save_after">
+        <observer name="leancommerce_custom_special_price_color_category_cache"
+                  instance="LeanCommerce\CustomSpecialPriceColor\Observer\FlushCacheOnCategorySave"/>
+    </event>
+</config>

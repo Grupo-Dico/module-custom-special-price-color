@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="special_price_color" translate="label" type="text" sortOrder="415"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Special Price Color</label>
+            <tab>catalog</tab>
+            <resource>LeanCommerce_CustomSpecialPriceColor::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General Settings</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enabled</label>
+                    <config_path>catalog/special_price_color/enabled</config_path>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="default_color" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Default Color</label>
+                    <config_path>catalog/special_price_color/default_color</config_path>
+                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
+                    <comment>Use a hex color such as #FFF or #FFFFFF. A scoped Spectrum picker is added in admin because this project does not include a native system config color field.</comment>
+                </field>
+                <field id="apply_in_plp" translate="label" type="select" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Apply in Product Listing Pages</label>
+                    <config_path>catalog/special_price_color/apply_in_plp</config_path>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="apply_in_pdp" translate="label" type="select" sortOrder="40"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Apply in Product Detail Pages</label>
+                    <config_path>catalog/special_price_color/apply_in_pdp</config_path>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="apply_in_carousels" translate="label" type="select" sortOrder="50"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Apply in Carousels and Product Widgets</label>
+                    <config_path>catalog/special_price_color/apply_in_carousels</config_path>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

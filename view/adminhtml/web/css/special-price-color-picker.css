@@ -1,0 +1,56 @@
+.lc-special-price-color-picker-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+}
+
+.lc-special-price-color-picker-control .lc-special-price-color-picker-input,
+.lc-special-price-color-picker-control .lc-special-price-color-picker-enhanced {
+    width: 140px;
+    transition: background-color .12s ease, color .12s ease;
+}
+
+.lc-special-price-color-picker-swatch {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 36px;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 32px;
+    box-sizing: border-box;
+    border: 1px solid #adadad;
+    border-radius: 1px;
+    background: #fff;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.lc-special-price-color-picker-preview {
+    display: block;
+    width: 24px;
+    height: 20px;
+    border: 1px solid #d6d6d6;
+    background: linear-gradient(45deg, #f5f5f5 25%, transparent 25%),
+        linear-gradient(-45deg, #f5f5f5 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f5f5f5 75%),
+        linear-gradient(-45deg, transparent 75%, #f5f5f5 75%);
+    background-color: #fff;
+    background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+    background-size: 10px 10px;
+}
+
+.lc-special-price-color-picker-swatch .lc-special-price-color-picker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    opacity: 0;
+}

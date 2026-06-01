@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Eav">
+        <plugin name="leancommerce_custom_special_price_color_product_eav_color_picker"
+                type="LeanCommerce\CustomSpecialPriceColor\Plugin\Catalog\Ui\DataProvider\Product\Form\Modifier\SpecialPriceColorMetaPlugin"/>
+    </type>
+</config>

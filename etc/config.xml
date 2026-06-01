@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <catalog>
+            <special_price_color>
+                <enabled>0</enabled>
+                <default_color/>
+                <apply_in_plp>1</apply_in_plp>
+                <apply_in_pdp>1</apply_in_pdp>
+                <apply_in_carousels>1</apply_in_carousels>
+            </special_price_color>
+        </catalog>
+    </default>
+</config>

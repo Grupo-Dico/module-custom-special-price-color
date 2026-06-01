@@ -1,0 +1,15 @@
+.lc-special-price-color-system-picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+}
+
+.lc-special-price-color-system-picker .sp-replacer {
+    flex: 0 0 auto;
+}
+
+.lc-special-price-color-system-picker .colorpicker-input {
+    width: 145px !important;
+    max-width: 145px;
+}
