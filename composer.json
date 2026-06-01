@@ -2,7 +2,6 @@
     "name": "leancommerce/module-custom-special-price-color",
     "description": "Allows administrators to configure visual presentation colors for special_price.",
     "type": "magento2-module",
-    "version": "0.1.0",
     "require": {
         "php": "^7.4 || ^8.1 || ^8.2 || ^8.3"
     },
