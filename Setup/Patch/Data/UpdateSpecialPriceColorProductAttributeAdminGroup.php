@@ -13,7 +13,7 @@ class UpdateSpecialPriceColorProductAttributeAdminGroup implements DataPatchInte
 {
     private const ATTRIBUTE_CODE = 'special_price_color';
     private const TARGET_GROUP = 'General';
-    private const SORT_ORDER = 6;
+    private const SORT_ORDER = 8;
 
     private ModuleDataSetupInterface $moduleDataSetup;
 

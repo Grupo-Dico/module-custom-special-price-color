@@ -1,6 +1,13 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- V1 color-only resolver kept for backward compatibility -->
     <preference for="LeanCommerce\CustomSpecialPriceColor\Api\SpecialPriceColorResolverInterface"
                 type="LeanCommerce\CustomSpecialPriceColor\Model\Resolver\SpecialPriceColorResolver"/>
+
+    <!-- V2 full presentation resolver -->
+    <preference for="LeanCommerce\CustomSpecialPriceColor\Api\SpecialPricePresentationResolverInterface"
+                type="LeanCommerce\CustomSpecialPriceColor\Model\Resolver\SpecialPricePresentationResolver"/>
+
 </config>

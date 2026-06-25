@@ -4,9 +4,10 @@
     <system>
         <section id="special_price_color" translate="label" type="text" sortOrder="415"
                  showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Special Price Color</label>
+            <label>Special Price Presentation</label>
             <tab>catalog</tab>
             <resource>LeanCommerce_CustomSpecialPriceColor::config</resource>
+
             <group id="general" translate="label" type="text" sortOrder="10"
                    showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>General Settings</label>
@@ -15,13 +16,6 @@
                     <label>Enabled</label>
                     <config_path>catalog/special_price_color/enabled</config_path>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="default_color" translate="label comment" type="text" sortOrder="20"
-                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                    <label>Default Color</label>
-                    <config_path>catalog/special_price_color/default_color</config_path>
-                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
-                    <comment>Use a hex color such as #FFF or #FFFFFF. A scoped Spectrum picker is added in admin because this project does not include a native system config color field.</comment>
                 </field>
                 <field id="apply_in_plp" translate="label" type="select" sortOrder="30"
                        showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
@@ -40,6 +34,105 @@
                     <label>Apply in Carousels and Product Widgets</label>
                     <config_path>catalog/special_price_color/apply_in_carousels</config_path>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+
+            <group id="normal_presentation" translate="label" type="text" sortOrder="20"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Normal Special Price Presentation</label>
+                <comment>Fallback for normal special_price: product, category, global, then theme.</comment>
+                <field id="default_label" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Default Label</label>
+                    <config_path>catalog/special_price_color/default_label</config_path>
+                    <comment>Leave empty to use Magento's native Special Price label.</comment>
+                </field>
+                <field id="default_label_color" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Default Label Color</label>
+                    <config_path>catalog/special_price_color/default_label_color</config_path>
+                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
+                    <comment>Hex color such as #FFF or #FFFFFF. Leave empty to use theme default.</comment>
+                </field>
+                <field id="default_color" translate="label comment" type="text" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Default Price Color</label>
+                    <config_path>catalog/special_price_color/default_color</config_path>
+                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
+                    <comment>Hex color such as #FFF or #FFFFFF. Leave empty to use theme default.</comment>
+                </field>
+                <field id="default_background_color" translate="label comment" type="text" sortOrder="40"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Default Price Background Color</label>
+                    <config_path>catalog/special_price_color/default_background_color</config_path>
+                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
+                    <comment>Hex color such as #FFF or #FFFFFF. Leave empty for no background.</comment>
+                </field>
+            </group>
+
+            <group id="super_oferta_presentation" translate="label" type="text" sortOrder="30"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Súper Oferta Presentation</label>
+                <comment>Global-only presentation when super_oferta = Yes and special_price is active.</comment>
+                <field id="super_oferta_label" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Label</label>
+                    <config_path>catalog/special_price_color/super_oferta_label</config_path>
+                    <comment>Leave empty to use Súper Oferta.</comment>
+                </field>
+                <field id="super_oferta_label_color" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Label Color</label>
+                    <config_path>catalog/special_price_color/super_oferta_label_color</config_path>
+                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
+                    <comment>Hex color. Leave empty for theme default.</comment>
+                </field>
+                <field id="super_oferta_price_color" translate="label comment" type="text" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Price Color</label>
+                    <config_path>catalog/special_price_color/super_oferta_price_color</config_path>
+                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
+                    <comment>Hex color. Leave empty for theme default.</comment>
+                </field>
+                <field id="super_oferta_background_color" translate="label comment" type="text" sortOrder="40"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Price Background Color</label>
+                    <config_path>catalog/special_price_color/super_oferta_background_color</config_path>
+                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
+                    <comment>Hex color. Leave empty for no background.</comment>
+                </field>
+            </group>
+
+            <group id="third_price_presentation" translate="label" type="text" sortOrder="40"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Al Pagar Precio Presentation</label>
+                <comment>Global-only informative presentation when al_pagar_precio is greater than zero. It does not change Magento price calculations.</comment>
+                <field id="third_price_label" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Label</label>
+                    <config_path>catalog/special_price_color/third_price_label</config_path>
+                    <comment>Leave empty to use Al pagar.</comment>
+                </field>
+                <field id="third_price_label_color" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Label Color</label>
+                    <config_path>catalog/special_price_color/third_price_label_color</config_path>
+                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
+                    <comment>Hex color. Leave empty for theme default.</comment>
+                </field>
+                <field id="third_price_price_color" translate="label comment" type="text" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Price Color</label>
+                    <config_path>catalog/special_price_color/third_price_price_color</config_path>
+                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
+                    <comment>Hex color. Leave empty for theme default.</comment>
+                </field>
+                <field id="third_price_background_color" translate="label comment" type="text" sortOrder="40"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Price Background Color</label>
+                    <config_path>catalog/special_price_color/third_price_background_color</config_path>
+                    <frontend_model>LeanCommerce\CustomSpecialPriceColor\Block\Adminhtml\System\Config\ColorPicker</frontend_model>
+                    <comment>Hex color. Leave empty for no background.</comment>
                 </field>
             </group>
         </section>

@@ -11,14 +11,30 @@ use Magento\Framework\Event\ObserverInterface;
 class FlushCacheOnConfigSave implements ObserverInterface
 {
     private const CONFIG_PATHS = [
+        // General
         'catalog/special_price_color/enabled',
-        'catalog/special_price_color/default_color',
         'catalog/special_price_color/apply_in_plp',
         'catalog/special_price_color/apply_in_pdp',
         'catalog/special_price_color/apply_in_carousels',
+        // Normal presentation
+        'catalog/special_price_color/default_label',
+        'catalog/special_price_color/default_label_color',
+        'catalog/special_price_color/default_color',
+        'catalog/special_price_color/default_background_color',
+        // Súper Oferta
+        'catalog/special_price_color/super_oferta_label',
+        'catalog/special_price_color/super_oferta_label_color',
+        'catalog/special_price_color/super_oferta_price_color',
+        'catalog/special_price_color/super_oferta_background_color',
+        // Third price
+        'catalog/special_price_color/third_price_label',
+        'catalog/special_price_color/third_price_label_color',
+        'catalog/special_price_color/third_price_price_color',
+        'catalog/special_price_color/third_price_background_color',
     ];
 
-    private SpecialPriceColorCacheInvalidator $cacheInvalidator;
+    /** @var SpecialPriceColorCacheInvalidator */
+    private $cacheInvalidator;
 
     public function __construct(SpecialPriceColorCacheInvalidator $cacheInvalidator)
     {

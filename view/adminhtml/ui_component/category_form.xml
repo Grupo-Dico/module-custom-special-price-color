@@ -2,6 +2,8 @@
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <fieldset name="content">
+
+        <!-- ===== Special Price Color (text color) ===== -->
         <field name="special_price_color" sortOrder="65" formElement="colorPicker">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -11,8 +13,8 @@
             </argument>
             <settings>
                 <dataType>text</dataType>
-                <label translate="true">Special Price Color</label>
-                <notice translate="true">Use a hex color such as #FFF or #FFFFFF.</notice>
+                <label translate="true">Special Price Text Color</label>
+                <notice translate="true">Use a hex color such as #FFF or #FFFFFF. Overrides global default for products in this category.</notice>
                 <componentType>colorPicker</componentType>
                 <placeholder translate="true">No Color</placeholder>
                 <validation>
@@ -34,5 +36,95 @@
                 </colorPicker>
             </formElements>
         </field>
+
+        <!-- ===== Special Price Label Color ===== -->
+        <field name="special_price_label_color" sortOrder="66" formElement="colorPicker">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">category</item>
+                    <item name="dataScope" xsi:type="string">special_price_label_color</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Special Price Label Color</label>
+                <notice translate="true">Use a hex color such as #FFF or #FFFFFF. Overrides global default for products in this category.</notice>
+                <componentType>colorPicker</componentType>
+                <placeholder translate="true">No Color</placeholder>
+                <validation>
+                    <rule name="validate-color" xsi:type="boolean">true</rule>
+                </validation>
+                <dataScope>special_price_label_color</dataScope>
+                <required>false</required>
+                <visible>true</visible>
+                <additionalClasses>
+                    <class name="admin__field-medium">true</class>
+                </additionalClasses>
+            </settings>
+            <formElements>
+                <colorPicker>
+                    <settings>
+                        <colorPickerMode>full</colorPickerMode>
+                        <colorFormat>hex</colorFormat>
+                    </settings>
+                </colorPicker>
+            </formElements>
+        </field>
+
+        <!-- ===== Special Price Background Color ===== -->
+        <field name="special_price_background_color" sortOrder="67" formElement="colorPicker">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">category</item>
+                    <item name="dataScope" xsi:type="string">special_price_background_color</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Special Price Background Color</label>
+                <notice translate="true">Hex color such as #FFF or #FFFFFF. Leave empty for no background.</notice>
+                <componentType>colorPicker</componentType>
+                <placeholder translate="true">No Color</placeholder>
+                <validation>
+                    <rule name="validate-color" xsi:type="boolean">true</rule>
+                </validation>
+                <dataScope>special_price_background_color</dataScope>
+                <required>false</required>
+                <visible>true</visible>
+                <additionalClasses>
+                    <class name="admin__field-medium">true</class>
+                </additionalClasses>
+            </settings>
+            <formElements>
+                <colorPicker>
+                    <settings>
+                        <colorPickerMode>full</colorPickerMode>
+                        <colorFormat>hex</colorFormat>
+                    </settings>
+                </colorPicker>
+            </formElements>
+        </field>
+
+        <!-- ===== Special Price Label ===== -->
+        <field name="special_price_label" sortOrder="68" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">category</item>
+                    <item name="dataScope" xsi:type="string">special_price_label</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Special Price Label</label>
+                <notice translate="true">Override the label for special price in this category. Leave empty to use global or Magento default.</notice>
+                <dataScope>special_price_label</dataScope>
+                <required>false</required>
+                <visible>true</visible>
+                <additionalClasses>
+                    <class name="admin__field-medium">true</class>
+                </additionalClasses>
+            </settings>
+        </field>
+
     </fieldset>
 </form>

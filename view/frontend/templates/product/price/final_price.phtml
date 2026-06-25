@@ -9,24 +9,41 @@
 // @codingStandardsIgnoreFile
 /** @var \LeanCommerce\CustomSpecialPriceColor\Block\Pricing\Render\FinalPriceBox $block */
 
-/** ex: \Magento\Catalog\Pricing\Price\RegularPrice */
+use LeanCommerce\CustomSpecialPriceColor\Model\Presentation\SpecialPricePresentation;
+
 /** @var \Magento\Framework\Pricing\Price\PriceInterface $priceModel */
 $priceModel = $block->getPriceType('regular_price');
 
-/** ex: \Magento\Catalog\Pricing\Price\FinalPrice */
 /** @var \Magento\Framework\Pricing\Price\PriceInterface $finalPriceModel */
 $finalPriceModel = $block->getPriceType('final_price');
 $idSuffix = $block->getIdSuffix() ? $block->getIdSuffix() : '';
 $schema = ($block->getZone() == 'item_view') ? true : false;
+
+$presentation = $block->getSpecialPricePresentation();
+$presentationMode = $presentation ? $presentation->getMode() : SpecialPricePresentation::MODE_NONE;
+$hasSpecialPrice = $block->hasSpecialPrice();
 ?>
-<?php if ($block->hasSpecialPrice()) :?>
-    <span class="special-price"<?= /* @noEscape */ $block->getSpecialPriceMarkerAttributes() ?>>
+
+<?php if ($hasSpecialPrice) :?>
+    <?php
+    $customLabel = $block->getSpecialPriceLabel();
+    if ($presentationMode === SpecialPricePresentation::MODE_SUPER_OFERTA) {
+        $displayLabel = $customLabel ?: __('Súper Oferta');
+    } elseif ($presentationMode === SpecialPricePresentation::MODE_NORMAL && $customLabel) {
+        $displayLabel = $customLabel;
+    } else {
+        $displayLabel = __('Special Price');
+    }
+
+    $wrapperStyle = $block->getSpecialPriceWrapperStyle();
+    ?>
+    <span class="special-price<?= /* @noEscape */ $block->getSpecialPriceModeClass() ?>"<?= /* @noEscape */ $block->getSpecialPriceMarkerAttributes() ?><?= $wrapperStyle ? ' style="' . $block->escapeHtmlAttr($wrapperStyle) . '"' : '' ?>>
         <?= /* @noEscape */ $block->renderSpecialPriceAmount($finalPriceModel->getAmount(), [
-            'display_label'     => __('Special Price'),
+            'display_label'     => $displayLabel,
             'price_id'          => $block->getPriceId('product-price-' . $idSuffix),
             'price_type'        => 'finalPrice',
             'include_container' => true,
-            'schema' => $schema
+            'schema'            => $schema
         ]); ?>
     </span>
     <span class="old-price">
@@ -43,8 +60,23 @@ $schema = ($block->getZone() == 'item_view') ? true : false;
         'price_id'          => $block->getPriceId('product-price-' . $idSuffix),
         'price_type'        => 'finalPrice',
         'include_container' => true,
-        'schema' => $schema
+        'schema'            => $schema
     ]); ?>
+<?php endif; ?>
+
+<?php if ($presentationMode === SpecialPricePresentation::MODE_THIRD_PRICE) :?>
+    <?php
+    $thirdPriceAmount = $block->getFormattedThirdPriceAmount();
+    $thirdPriceWrapperStyle = $block->getThirdPriceWrapperStyle();
+    $thirdPriceLabelStyle = $block->getThirdPriceLabelStyle();
+    $thirdPriceAmountStyle = $block->getThirdPriceAmountStyle();
+    ?>
+    <?php if ($thirdPriceAmount !== null) :?>
+        <span class="lc-third-price"<?= /* @noEscape */ $block->getThirdPriceAttributes() ?><?= $thirdPriceWrapperStyle ? ' style="' . $block->escapeHtmlAttr($thirdPriceWrapperStyle) . '"' : '' ?> aria-label="<?= $block->escapeHtmlAttr(__('Al pagar precio')) ?>">
+            <span class="lc-third-price__label"<?= $thirdPriceLabelStyle ? ' style="' . $block->escapeHtmlAttr($thirdPriceLabelStyle) . '"' : '' ?>><?= $block->escapeHtml($block->getThirdPriceLabel()) ?></span>
+            <span class="lc-third-price__amount"<?= $thirdPriceAmountStyle ? ' style="' . $block->escapeHtmlAttr($thirdPriceAmountStyle) . '"' : '' ?>><?= $block->escapeHtml($thirdPriceAmount) ?></span>
+        </span>
+    <?php endif; ?>
 <?php endif; ?>
 
 <?php if ($block->showMinimalPrice()) :?>

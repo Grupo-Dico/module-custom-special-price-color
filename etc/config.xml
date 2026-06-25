@@ -4,11 +4,29 @@
     <default>
         <catalog>
             <special_price_color>
+                <!-- General -->
                 <enabled>0</enabled>
-                <default_color/>
                 <apply_in_plp>1</apply_in_plp>
                 <apply_in_pdp>1</apply_in_pdp>
                 <apply_in_carousels>1</apply_in_carousels>
+
+                <!-- Normal special_price presentation defaults (empty = theme fallback) -->
+                <default_label/>
+                <default_label_color/>
+                <default_color/>
+                <default_background_color/>
+
+                <!-- Súper Oferta presentation defaults -->
+                <super_oferta_label/>
+                <super_oferta_label_color/>
+                <super_oferta_price_color/>
+                <super_oferta_background_color/>
+
+                <!-- Third price (al_pagar_precio) presentation defaults -->
+                <third_price_label/>
+                <third_price_label_color/>
+                <third_price_price_color/>
+                <third_price_background_color/>
             </special_price_color>
         </catalog>
     </default>

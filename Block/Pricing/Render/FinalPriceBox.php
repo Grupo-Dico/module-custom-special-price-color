@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace LeanCommerce\CustomSpecialPriceColor\Block\Pricing\Render;
 
 use LeanCommerce\CustomSpecialPriceColor\Api\SpecialPriceColorResolverInterface;
+use LeanCommerce\CustomSpecialPriceColor\Api\SpecialPricePresentationResolverInterface;
 use LeanCommerce\CustomSpecialPriceColor\Model\Config;
 use LeanCommerce\CustomSpecialPriceColor\Model\Context\CurrentCategoryProvider;
+use LeanCommerce\CustomSpecialPriceColor\Model\Presentation\SpecialPricePresentation;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\Product\Pricing\Renderer\SalableResolverInterface;
 use Magento\Catalog\Pricing\Price\MinimalPriceCalculatorInterface;
 use Magento\Framework\Pricing\Amount\AmountInterface;
 use Magento\Framework\Pricing\Price\PriceInterface;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Pricing\Render;
 use Magento\Framework\Pricing\Render\RendererPool;
 use Magento\Framework\Pricing\SaleableInterface;
@@ -20,24 +23,37 @@ use Magento\Framework\View\Element\Template\Context;
 
 class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
 {
-    private SpecialPriceColorResolverInterface $specialPriceColorResolver;
+    /** @var SpecialPricePresentationResolverInterface */
+    private $presentationResolver;
 
-    private Config $config;
+    /** @var SpecialPriceColorResolverInterface */
+    private $specialPriceColorResolver;
 
-    private CurrentCategoryProvider $currentCategoryProvider;
+    /** @var Config */
+    private $config;
 
-    private ?string $resolvedSpecialPriceColor = null;
+    /** @var CurrentCategoryProvider */
+    private $currentCategoryProvider;
 
-    private bool $isSpecialPriceColorResolved = false;
+    /** @var PriceCurrencyInterface */
+    private $priceCurrency;
+
+    /** @var SpecialPricePresentation|null */
+    private $resolvedPresentation;
+
+    /** @var bool */
+    private $isPresentationResolved = false;
 
     public function __construct(
         Context $context,
         SaleableInterface $saleableItem,
         PriceInterface $price,
         RendererPool $rendererPool,
+        SpecialPricePresentationResolverInterface $presentationResolver,
         SpecialPriceColorResolverInterface $specialPriceColorResolver,
         Config $config,
         CurrentCategoryProvider $currentCategoryProvider,
+        PriceCurrencyInterface $priceCurrency,
         array $data = [],
         ?SalableResolverInterface $salableResolver = null,
         ?MinimalPriceCalculatorInterface $minimalPriceCalculator = null
@@ -52,52 +68,198 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
             $minimalPriceCalculator
         );
 
+        $this->presentationResolver      = $presentationResolver;
         $this->specialPriceColorResolver = $specialPriceColorResolver;
-        $this->config = $config;
-        $this->currentCategoryProvider = $currentCategoryProvider;
+        $this->config                    = $config;
+        $this->currentCategoryProvider   = $currentCategoryProvider;
+        $this->priceCurrency             = $priceCurrency;
+    }
+
+    public function getSpecialPricePresentation(): ?SpecialPricePresentation
+    {
+        if (!$this->isPresentationResolved) {
+            $this->resolvedPresentation = $this->resolvePresentation();
+            $this->isPresentationResolved = true;
+        }
+
+        return $this->resolvedPresentation;
+    }
+
+    public function getSpecialPriceColor(): ?string
+    {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || !$this->isSpecialPricePresentation($presentation)) {
+            return null;
+        }
+
+        return $presentation->getPriceColor();
     }
 
     public function renderSpecialPriceAmount(AmountInterface $amount, array $arguments = []): string
     {
         $html = $this->renderAmount($amount, $arguments);
-        $color = $this->getSpecialPriceColor();
+        $presentation = $this->getSpecialPricePresentation();
 
-        if ($color === null) {
+        if ($presentation === null || !$this->isSpecialPricePresentation($presentation)) {
             return $html;
         }
 
-        return $this->addStyleToPriceAmount($html, $color);
-    }
-
-    public function getSpecialPriceColor(): ?string
-    {
-        if (!$this->isSpecialPriceColorResolved) {
-            $this->resolvedSpecialPriceColor = $this->resolveSpecialPriceColor();
-            $this->isSpecialPriceColorResolved = true;
-        }
-
-        return $this->resolvedSpecialPriceColor;
+        return $this->addStylesToPriceAmount(
+            $html,
+            $presentation->getPriceColor(),
+            $presentation->getLabelColor()
+        );
     }
 
     public function getSpecialPriceMarkerAttributes(): string
     {
-        if (!$this->hasSpecialPrice()) {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || !$this->isSpecialPricePresentation($presentation)) {
             return '';
         }
 
-        $color = $this->getSpecialPriceColor();
+        return $this->buildPresentationDataAttributes($presentation, 'special-price');
+    }
 
-        if ($color === null) {
+    public function getSpecialPriceModeClass(): string
+    {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || !$this->isSpecialPricePresentation($presentation)) {
             return '';
         }
 
-        return ' data-lc-special-price-color="' . $this->escapeHtmlAttr($color) . '"';
+        return ' lc-price-mode-' . $this->escapeHtmlAttr($presentation->getMode());
+    }
+
+    public function getSpecialPriceWrapperStyle(): string
+    {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || !$this->isSpecialPricePresentation($presentation)) {
+            return '';
+        }
+
+        $backgroundColor = $presentation->getPriceBackgroundColor();
+        if ($backgroundColor === null) {
+            return '';
+        }
+
+        return 'background-color: ' . $this->escapeHtmlAttr($backgroundColor) . ';';
+    }
+
+    public function getSpecialPriceLabel(): ?string
+    {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || !$this->isSpecialPricePresentation($presentation)) {
+            return null;
+        }
+
+        return $presentation->getLabel();
+    }
+
+    public function getThirdPriceAmount(): ?float
+    {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
+            return null;
+        }
+
+        return $presentation->getThirdPriceAmount();
+    }
+
+    public function getThirdPriceLabel(): string
+    {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
+            return (string) __('Al pagar');
+        }
+
+        return $presentation->getLabel() ?: (string) __('Al pagar');
+    }
+
+    public function getThirdPriceAttributes(): string
+    {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
+            return '';
+        }
+
+        return $this->buildPresentationDataAttributes($presentation, 'third-price');
+    }
+
+    public function getThirdPriceWrapperStyle(): string
+    {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
+            return '';
+        }
+
+        $backgroundColor = $presentation->getPriceBackgroundColor();
+        if ($backgroundColor === null) {
+            return '';
+        }
+
+        return 'background-color: ' . $this->escapeHtmlAttr($backgroundColor) . ';';
+    }
+
+    public function getThirdPriceLabelStyle(): string
+    {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
+            return '';
+        }
+
+        return $this->buildColorStyle($presentation->getLabelColor());
+    }
+
+    public function getThirdPriceAmountStyle(): string
+    {
+        $presentation = $this->getSpecialPricePresentation();
+
+        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
+            return '';
+        }
+
+        return $this->buildColorStyle($presentation->getPriceColor());
+    }
+
+    public function getFormattedThirdPriceAmount(): ?string
+    {
+        $amount = $this->getThirdPriceAmount();
+
+        if ($amount === null || $amount <= 0.0) {
+            return null;
+        }
+
+        $saleableItem = $this->getSaleableItem();
+        $storeId = $saleableItem instanceof ProductInterface ? $this->getProductStoreId($saleableItem) : null;
+
+        return $this->priceCurrency->format(
+            $amount,
+            false,
+            PriceCurrencyInterface::DEFAULT_PRECISION,
+            $storeId
+        );
     }
 
     public function getCacheKeyInfo()
     {
         $cacheKeys = parent::getCacheKeyInfo();
-        $cacheKeys['lc_special_price_color'] = $this->getSpecialPriceColor() ?? 'none';
+        $presentation = $this->getSpecialPricePresentation();
+
+        $cacheKeys['lc_price_mode'] = $presentation ? $presentation->getMode() : 'none';
+        $cacheKeys['lc_presentation_hash'] = $presentation
+            ? sha1($presentation->toCacheKeyPart())
+            : 'none';
         $cacheKeys['lc_special_price_context'] = (string) $this->getRequest()->getFullActionName();
 
         $category = $this->currentCategoryProvider->getCurrentCategory();
@@ -108,15 +270,22 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
 
     protected function wrapResult($html)
     {
+        $presentation = $this->getSpecialPricePresentation();
+        $boxAttrs = '';
+
+        if ($presentation !== null && $this->isSpecialPricePresentation($presentation)) {
+            $boxAttrs = $this->buildPresentationDataAttributes($presentation, 'price-box');
+        }
+
         return '<div class="price-box ' . $this->getData('css_classes') . '" ' .
             'data-role="priceBox" ' .
             'data-product-id="' . $this->getSaleableItem()->getId() . '" ' .
             'data-price-box="product-id-' . $this->getSaleableItem()->getId() . '"' .
-            $this->getSpecialPriceMarkerAttributes() .
+            $boxAttrs .
             '>' . $html . '</div>';
     }
 
-    private function resolveSpecialPriceColor(): ?string
+    private function resolvePresentation(): ?SpecialPricePresentation
     {
         $product = $this->getSaleableItem();
 
@@ -124,11 +293,11 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
             return null;
         }
 
-        $storeId = $this->getProductStoreId($product);
-        $fullActionName = (string) $this->getRequest()->getFullActionName();
-        $zone = $this->getZone();
+        $storeId    = $this->getProductStoreId($product);
+        $fullAction = (string) $this->getRequest()->getFullActionName();
+        $zone       = $this->getZone();
 
-        if ($fullActionName === 'catalog_category_view'
+        if ($fullAction === 'catalog_category_view'
             && $zone === Render::ZONE_ITEM_LIST
             && $this->isCatalogListPrice()
         ) {
@@ -136,14 +305,14 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
                 return null;
             }
 
-            return $this->specialPriceColorResolver->resolve(
+            return $this->presentationResolver->resolve(
                 $product,
                 $this->currentCategoryProvider->getCurrentCategory(),
                 $storeId
             );
         }
 
-        if ($fullActionName === 'catalogsearch_result_index'
+        if ($fullAction === 'catalogsearch_result_index'
             && $zone === Render::ZONE_ITEM_LIST
             && $this->isCatalogListPrice()
         ) {
@@ -151,27 +320,27 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
                 return null;
             }
 
-            return $this->specialPriceColorResolver->resolve($product, null, $storeId);
+            return $this->presentationResolver->resolve($product, null, $storeId);
         }
 
-        if ($this->isPdpMainPrice($fullActionName, $zone)) {
+        if ($this->isPdpMainPrice($fullAction, $zone)) {
             if (!$this->config->isApplyInPdp($storeId)) {
                 return null;
             }
 
-            return $this->specialPriceColorResolver->resolve(
+            return $this->presentationResolver->resolve(
                 $product,
                 $this->currentCategoryProvider->getCurrentCategory(),
                 $storeId
             );
         }
 
-        if ($this->isCarouselOrWidgetPrice($fullActionName, $zone)) {
+        if ($this->isCarouselOrWidgetPrice($fullAction, $zone)) {
             if (!$this->config->isApplyInCarousels($storeId)) {
                 return null;
             }
 
-            return $this->specialPriceColorResolver->resolve($product, null, $storeId);
+            return $this->presentationResolver->resolve($product, null, $storeId);
         }
 
         return null;
@@ -222,28 +391,87 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
         return false;
     }
 
-    private function addStyleToPriceAmount(string $html, string $color): string
+    private function isSpecialPricePresentation(SpecialPricePresentation $presentation): bool
     {
-        $style = 'color: ' . $this->escapeHtmlAttr($color) . ' !important;';
-        $pattern = '/(<span\b(?=[^>]*\bclass="(?:[^"]*\s)?price(?:\s[^"]*)?")[^>]*)(>)/';
+        return in_array(
+            $presentation->getMode(),
+            [SpecialPricePresentation::MODE_NORMAL, SpecialPricePresentation::MODE_SUPER_OFERTA],
+            true
+        );
+    }
 
+    private function buildPresentationDataAttributes(
+        SpecialPricePresentation $presentation,
+        string $target
+    ): string {
+        $attrs  = ' data-lc-price-mode="' . $this->escapeHtmlAttr($presentation->getMode()) . '"';
+        $attrs .= ' data-lc-presentation-target="' . $this->escapeHtmlAttr($target) . '"';
+
+        if ($presentation->getLabelColor() !== null) {
+            $attrs .= ' data-lc-special-price-label-color="'
+                . $this->escapeHtmlAttr($presentation->getLabelColor()) . '"';
+        }
+
+        if ($presentation->getPriceColor() !== null) {
+            $attrs .= ' data-lc-special-price-color="' . $this->escapeHtmlAttr($presentation->getPriceColor()) . '"';
+        }
+
+        if ($presentation->getPriceBackgroundColor() !== null) {
+            $attrs .= ' data-lc-special-price-bg="'
+                . $this->escapeHtmlAttr($presentation->getPriceBackgroundColor()) . '"';
+        }
+
+        return $attrs;
+    }
+
+    private function buildColorStyle(?string $color): string
+    {
+        if ($color === null) {
+            return '';
+        }
+
+        return 'color: ' . $this->escapeHtmlAttr($color) . ' !important;';
+    }
+
+    private function addStylesToPriceAmount(?string $html, ?string $priceColor, ?string $labelColor): string
+    {
+        $html = $html ?? '';
+
+        if ($labelColor !== null) {
+            $html = $this->addStyleToFirstClassedSpan($html, 'price-label', $this->buildColorStyle($labelColor));
+        }
+
+        if ($priceColor !== null) {
+            $html = $this->addStyleToFirstClassedSpan($html, 'price', $this->buildColorStyle($priceColor));
+        }
+
+        return $html;
+    }
+
+    private function addStyleToFirstClassedSpan(string $html, string $className, string $style): string
+    {
+        if ($style === '') {
+            return $html;
+        }
+
+        $pattern = '~(<span\b[^>]*\bclass="(?:[^"]*\s)?'
+            . preg_quote($className, '~')
+            . '(?:\s[^"]*)?"[^>]*>)~i';
         $styledHtml = preg_replace_callback(
             $pattern,
             function (array $matches) use ($style): string {
-                $tagStart = $matches[1];
+                $tagStart = rtrim($matches[1], '>');
 
                 if (preg_match('/\sstyle="([^"]*)"/', $tagStart)) {
-                    $tagStart = preg_replace(
+                    return preg_replace(
                         '/\sstyle="([^"]*)"/',
                         ' style="$1 ' . $style . '"',
                         $tagStart,
                         1
-                    );
-
-                    return $tagStart . $matches[2];
+                    ) . '>';
                 }
 
-                return $tagStart . ' style="' . $style . '"' . $matches[2];
+                return $tagStart . ' style="' . $style . '">';
             },
             $html,
             1

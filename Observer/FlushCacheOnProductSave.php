@@ -11,9 +11,20 @@ use Magento\Framework\Event\ObserverInterface;
 
 class FlushCacheOnProductSave implements ObserverInterface
 {
-    private const ATTRIBUTE_CODE = 'special_price_color';
+    /**
+     * Attribute codes that trigger a product cache flush when changed.
+     */
+    private const WATCHED_ATTRIBUTES = [
+        'special_price_color',
+        'special_price_label',
+        'special_price_label_color',
+        'special_price_background_color',
+        'super_oferta',
+        'al_pagar_precio',
+    ];
 
-    private SpecialPriceColorCacheInvalidator $cacheInvalidator;
+    /** @var SpecialPriceColorCacheInvalidator */
+    private $cacheInvalidator;
 
     public function __construct(SpecialPriceColorCacheInvalidator $cacheInvalidator)
     {
@@ -24,19 +35,25 @@ class FlushCacheOnProductSave implements ObserverInterface
     {
         $product = $observer->getEvent()->getData('product');
 
-        if (!$product instanceof Product || !$this->hasSpecialPriceColorChanged($product)) {
+        if (!$product instanceof Product) {
+            return;
+        }
+
+        if (!$this->hasAnyWatchedAttributeChanged($product)) {
             return;
         }
 
         $this->cacheInvalidator->cleanProductCache($product);
     }
 
-    private function hasSpecialPriceColorChanged(Product $product): bool
+    private function hasAnyWatchedAttributeChanged(Product $product): bool
     {
-        if (!$product->hasData(self::ATTRIBUTE_CODE)) {
-            return false;
+        foreach (self::WATCHED_ATTRIBUTES as $attributeCode) {
+            if ($product->hasData($attributeCode) && $product->dataHasChangedFor($attributeCode)) {
+                return true;
+            }
         }
 
-        return $product->dataHasChangedFor(self::ATTRIBUTE_CODE);
+        return false;
     }
 }
