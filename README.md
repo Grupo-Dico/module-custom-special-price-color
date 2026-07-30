@@ -12,9 +12,9 @@ Grupo Dico uses several visual price presentations in the catalog:
 
 - Normal special price.
 - `Súper Oferta`.
-- Informative third price, shown as `Al pagar`.
+- `Al pagar`, with an informative high reference price from `al_pagar_precio`.
 
-These presentations share a common visual model so merchandising teams can control labels, label colors, price colors, and price background colors from Magento admin configuration and EAV attributes.
+These presentations share a common visual model so merchandising teams can control labels, label colors, price colors, and price background colors for the transactional `special_price` from Magento admin configuration and EAV attributes.
 
 ## Functional Scope
 
@@ -22,11 +22,11 @@ The module supports three presentation modes:
 
 1. **Normal Special Price**: Visual formatting for Magento's native active `special_price`.
 2. **Súper Oferta**: Global presentation applied when product attribute `super_oferta` is enabled and Magento `special_price` is active.
-3. **Third Price / Al pagar**: Informative, non-transactional amount rendered from product attribute `al_pagar_precio`.
+3. **Third Price / Al pagar**: Global `Al pagar` presentation applied to `special_price`, accompanied by a non-transactional high reference amount from product attribute `al_pagar_precio`.
 
 ## Visual Presentation Fields
 
-Each presentation may define:
+Each presentation may define the following fields for the main `special_price` block:
 
 - `label`
 - `label_color`
@@ -51,7 +51,7 @@ Normal `special_price` cascade:
 3. Global configuration.
 4. Native theme fallback.
 
-`al_pagar_precio` is informational only. It renders an additional visual price block and never modifies Magento transactional prices.
+`al_pagar_precio` is informational only. It renders as a fixed, struck-through high reference price and never modifies Magento transactional prices. Its presence selects the global `Al pagar` presentation for `special_price`, unless `Súper Oferta` has higher priority.
 
 ## Configuration Scope
 
@@ -63,7 +63,7 @@ Normal special price presentation can be configured at:
 
 `Súper Oferta` presentation is global only.
 
-Third price / `Al pagar` presentation is global only, with the amount stored on the product.
+Third price / `Al pagar` presentation is global only, with the high reference amount stored on the product. Its configurable label and colors apply to `special_price`, not to the reference amount.
 
 ## Product Attributes
 
@@ -245,8 +245,16 @@ Manual browser checks:
 - Search results use product, global, theme priority.
 - Widgets and carousels use product, global, theme priority.
 - `Súper Oferta` presentation applies only when `super_oferta` is enabled and `special_price` is active.
-- `Al pagar` renders as an informative third-price block and does not affect transactional price.
+- `Al pagar` styles the transactional `special_price`; `al_pagar_precio` remains a fixed, struck-through reference amount.
+- When `Súper Oferta` and `al_pagar_precio` coexist, `special_price` uses `Súper Oferta` and the reference amount remains visible.
 - Price reload behavior remains stable with Magento `priceBox` updates.
+
+## Unreleased
+
+- Applies configurable backgrounds only to the numeric `.special-price .price` element.
+- Keeps raw validated HEX values in inline styles without double escaping `#`.
+- Applies the global `Al pagar` presentation to `special_price` while keeping `lc-third-price` fixed and non-transactional.
+- Preserves the `al_pagar_precio` reference amount when `Súper Oferta` wins the visual priority.
 
 ## Release Notes 1.0.2
 

@@ -29,7 +29,10 @@ class SpecialPricePresentation
     /** @var string|null */
     private $priceBackgroundColor;
 
-    /** @var float|null Informative amount for third-price block. NOT transactional. */
+    /**
+     * @var float|null Informative reference amount rendered independently of the
+     * visual mode selected for special_price. NOT transactional.
+     */
     private $thirdPriceAmount;
 
     public function __construct(

@@ -29,15 +29,13 @@ $hasSpecialPrice = $block->hasSpecialPrice();
     $customLabel = $block->getSpecialPriceLabel();
     if ($presentationMode === SpecialPricePresentation::MODE_SUPER_OFERTA) {
         $displayLabel = $customLabel ?: __('Súper Oferta');
-    } elseif ($presentationMode === SpecialPricePresentation::MODE_NORMAL && $customLabel) {
+    } elseif ($customLabel) {
         $displayLabel = $customLabel;
     } else {
         $displayLabel = __('Special Price');
     }
-
-    $wrapperStyle = $block->getSpecialPriceWrapperStyle();
     ?>
-    <span class="special-price<?= /* @noEscape */ $block->getSpecialPriceModeClass() ?>"<?= /* @noEscape */ $block->getSpecialPriceMarkerAttributes() ?><?= $wrapperStyle ? ' style="' . $block->escapeHtmlAttr($wrapperStyle) . '"' : '' ?>>
+    <span class="special-price<?= /* @noEscape */ $block->getSpecialPriceModeClass() ?>"<?= /* @noEscape */ $block->getSpecialPriceMarkerAttributes() ?>>
         <?= /* @noEscape */ $block->renderSpecialPriceAmount($finalPriceModel->getAmount(), [
             'display_label'     => $displayLabel,
             'price_id'          => $block->getPriceId('product-price-' . $idSuffix),
@@ -64,19 +62,12 @@ $hasSpecialPrice = $block->hasSpecialPrice();
     ]); ?>
 <?php endif; ?>
 
-<?php if ($presentationMode === SpecialPricePresentation::MODE_THIRD_PRICE) :?>
-    <?php
-    $thirdPriceAmount = $block->getFormattedThirdPriceAmount();
-    $thirdPriceWrapperStyle = $block->getThirdPriceWrapperStyle();
-    $thirdPriceLabelStyle = $block->getThirdPriceLabelStyle();
-    $thirdPriceAmountStyle = $block->getThirdPriceAmountStyle();
-    ?>
-    <?php if ($thirdPriceAmount !== null) :?>
-        <span class="lc-third-price"<?= /* @noEscape */ $block->getThirdPriceAttributes() ?><?= $thirdPriceWrapperStyle ? ' style="' . $block->escapeHtmlAttr($thirdPriceWrapperStyle) . '"' : '' ?> aria-label="<?= $block->escapeHtmlAttr(__('Al pagar precio')) ?>">
-            <span class="lc-third-price__label"<?= $thirdPriceLabelStyle ? ' style="' . $block->escapeHtmlAttr($thirdPriceLabelStyle) . '"' : '' ?>><?= $block->escapeHtml($block->getThirdPriceLabel()) ?></span>
-            <span class="lc-third-price__amount"<?= $thirdPriceAmountStyle ? ' style="' . $block->escapeHtmlAttr($thirdPriceAmountStyle) . '"' : '' ?>><?= $block->escapeHtml($thirdPriceAmount) ?></span>
-        </span>
-    <?php endif; ?>
+<?php $thirdPriceAmount = $block->getFormattedThirdPriceAmount(); ?>
+<?php if ($thirdPriceAmount !== null) :?>
+    <span class="lc-third-price" aria-label="<?= $block->escapeHtmlAttr(__('Normal price')) ?>">
+        <span class="lc-third-price__label"><?= $block->escapeHtml($block->getThirdPriceLabel()) ?></span>
+        <span class="lc-third-price__amount" style="<?= /* @noEscape */ $block->getThirdPriceAmountStyle() ?>"><?= $block->escapeHtml($thirdPriceAmount) ?></span>
+    </span>
 <?php endif; ?>
 
 <?php if ($block->showMinimalPrice()) :?>

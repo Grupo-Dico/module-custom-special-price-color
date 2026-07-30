@@ -108,7 +108,8 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
         return $this->addStylesToPriceAmount(
             $html,
             $presentation->getPriceColor(),
-            $presentation->getLabelColor()
+            $presentation->getLabelColor(),
+            $presentation->getPriceBackgroundColor()
         );
     }
 
@@ -131,23 +132,7 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
             return '';
         }
 
-        return ' lc-price-mode-' . $this->escapeHtmlAttr($presentation->getMode());
-    }
-
-    public function getSpecialPriceWrapperStyle(): string
-    {
-        $presentation = $this->getSpecialPricePresentation();
-
-        if ($presentation === null || !$this->isSpecialPricePresentation($presentation)) {
-            return '';
-        }
-
-        $backgroundColor = $presentation->getPriceBackgroundColor();
-        if ($backgroundColor === null) {
-            return '';
-        }
-
-        return 'background-color: ' . $this->escapeHtmlAttr($backgroundColor) . ';';
+        return ' lc-price-mode-' . $this->escapeAttributeValue($presentation->getMode());
     }
 
     public function getSpecialPriceLabel(): ?string
@@ -165,71 +150,17 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
     {
         $presentation = $this->getSpecialPricePresentation();
 
-        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
-            return null;
-        }
-
-        return $presentation->getThirdPriceAmount();
+        return $presentation === null ? null : $presentation->getThirdPriceAmount();
     }
 
     public function getThirdPriceLabel(): string
     {
-        $presentation = $this->getSpecialPricePresentation();
-
-        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
-            return (string) __('Al pagar');
-        }
-
-        return $presentation->getLabel() ?: (string) __('Al pagar');
-    }
-
-    public function getThirdPriceAttributes(): string
-    {
-        $presentation = $this->getSpecialPricePresentation();
-
-        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
-            return '';
-        }
-
-        return $this->buildPresentationDataAttributes($presentation, 'third-price');
-    }
-
-    public function getThirdPriceWrapperStyle(): string
-    {
-        $presentation = $this->getSpecialPricePresentation();
-
-        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
-            return '';
-        }
-
-        $backgroundColor = $presentation->getPriceBackgroundColor();
-        if ($backgroundColor === null) {
-            return '';
-        }
-
-        return 'background-color: ' . $this->escapeHtmlAttr($backgroundColor) . ';';
-    }
-
-    public function getThirdPriceLabelStyle(): string
-    {
-        $presentation = $this->getSpecialPricePresentation();
-
-        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
-            return '';
-        }
-
-        return $this->buildColorStyle($presentation->getLabelColor());
+        return (string) __('Normal');
     }
 
     public function getThirdPriceAmountStyle(): string
     {
-        $presentation = $this->getSpecialPricePresentation();
-
-        if ($presentation === null || $presentation->getMode() !== SpecialPricePresentation::MODE_THIRD_PRICE) {
-            return '';
-        }
-
-        return $this->buildColorStyle($presentation->getPriceColor());
+        return 'color: #595c5a; font-weight: 600; font-size: 1.4rem; text-decoration: line-through;';
     }
 
     public function getFormattedThirdPriceAmount(): ?string
@@ -395,7 +326,11 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
     {
         return in_array(
             $presentation->getMode(),
-            [SpecialPricePresentation::MODE_NORMAL, SpecialPricePresentation::MODE_SUPER_OFERTA],
+            [
+                SpecialPricePresentation::MODE_NORMAL,
+                SpecialPricePresentation::MODE_SUPER_OFERTA,
+                SpecialPricePresentation::MODE_THIRD_PRICE,
+            ],
             true
         );
     }
@@ -404,21 +339,22 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
         SpecialPricePresentation $presentation,
         string $target
     ): string {
-        $attrs  = ' data-lc-price-mode="' . $this->escapeHtmlAttr($presentation->getMode()) . '"';
-        $attrs .= ' data-lc-presentation-target="' . $this->escapeHtmlAttr($target) . '"';
+        $attrs  = ' data-lc-price-mode="' . $this->escapeAttributeValue($presentation->getMode()) . '"';
+        $attrs .= ' data-lc-presentation-target="' . $this->escapeAttributeValue($target) . '"';
 
         if ($presentation->getLabelColor() !== null) {
             $attrs .= ' data-lc-special-price-label-color="'
-                . $this->escapeHtmlAttr($presentation->getLabelColor()) . '"';
+                . $this->escapeAttributeValue($presentation->getLabelColor()) . '"';
         }
 
         if ($presentation->getPriceColor() !== null) {
-            $attrs .= ' data-lc-special-price-color="' . $this->escapeHtmlAttr($presentation->getPriceColor()) . '"';
+            $attrs .= ' data-lc-special-price-color="'
+                . $this->escapeAttributeValue($presentation->getPriceColor()) . '"';
         }
 
         if ($presentation->getPriceBackgroundColor() !== null) {
             $attrs .= ' data-lc-special-price-bg="'
-                . $this->escapeHtmlAttr($presentation->getPriceBackgroundColor()) . '"';
+                . $this->escapeAttributeValue($presentation->getPriceBackgroundColor()) . '"';
         }
 
         return $attrs;
@@ -430,19 +366,35 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
             return '';
         }
 
-        return 'color: ' . $this->escapeHtmlAttr($color) . ' !important;';
+        return 'color: ' . $color . ' !important;';
     }
 
-    private function addStylesToPriceAmount(?string $html, ?string $priceColor, ?string $labelColor): string
+    private function buildPriceStyle(?string $priceColor, ?string $backgroundColor): string
     {
+        $style = $this->buildColorStyle($priceColor);
+
+        if ($backgroundColor !== null) {
+            $style .= 'background-color: ' . $backgroundColor . ' !important; padding: 1px 5px;';
+        }
+
+        return $style;
+    }
+
+    private function addStylesToPriceAmount(
+        ?string $html,
+        ?string $priceColor,
+        ?string $labelColor,
+        ?string $backgroundColor
+    ): string {
         $html = $html ?? '';
 
         if ($labelColor !== null) {
             $html = $this->addStyleToFirstClassedSpan($html, 'price-label', $this->buildColorStyle($labelColor));
         }
 
-        if ($priceColor !== null) {
-            $html = $this->addStyleToFirstClassedSpan($html, 'price', $this->buildColorStyle($priceColor));
+        $priceStyle = $this->buildPriceStyle($priceColor, $backgroundColor);
+        if ($priceStyle !== '') {
+            $html = $this->addStyleToFirstClassedSpan($html, 'price', $priceStyle);
         }
 
         return $html;
@@ -454,6 +406,7 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
             return $html;
         }
 
+        $style = $this->escapeAttributeValue($style);
         $pattern = '~(<span\b[^>]*\bclass="(?:[^"]*\s)?'
             . preg_quote($className, '~')
             . '(?:\s[^"]*)?"[^>]*>)~i';
@@ -478,6 +431,11 @@ class FinalPriceBox extends \Magento\Catalog\Pricing\Render\FinalPriceBox
         );
 
         return $styledHtml ?? $html;
+    }
+
+    private function escapeAttributeValue(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
     }
 
     private function getProductStoreId(ProductInterface $product): ?int

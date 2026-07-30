@@ -55,12 +55,12 @@ class SpecialPricePresentationResolver implements SpecialPricePresentationResolv
         }
 
         $hasActiveSpecialPrice = $this->hasActiveSpecialPrice($product, $storeId);
+        $alPagarPrecio = $this->getAlPagarPrecio($product);
 
         if ($hasActiveSpecialPrice && $this->isSuperOferta($product)) {
-            return $this->buildSuperOfertaPresentation($storeId);
+            return $this->buildSuperOfertaPresentation($storeId, $alPagarPrecio);
         }
 
-        $alPagarPrecio = $this->getAlPagarPrecio($product);
         if ($alPagarPrecio !== null && $alPagarPrecio > 0.0) {
             return $this->buildThirdPricePresentation($alPagarPrecio, $storeId);
         }
@@ -77,14 +77,15 @@ class SpecialPricePresentationResolver implements SpecialPricePresentationResolv
         return new SpecialPricePresentation(SpecialPricePresentation::MODE_NONE);
     }
 
-    private function buildSuperOfertaPresentation(?int $storeId): SpecialPricePresentation
+    private function buildSuperOfertaPresentation(?int $storeId, ?float $thirdPriceAmount): SpecialPricePresentation
     {
         return new SpecialPricePresentation(
             SpecialPricePresentation::MODE_SUPER_OFERTA,
             $this->config->getSuperOfertaLabel($storeId) ?: (string) __('Súper Oferta'),
             $this->normalizer->normalize($this->config->getSuperOfertaLabelColor($storeId)),
             $this->normalizer->normalize($this->config->getSuperOfertaPriceColor($storeId)),
-            $this->normalizer->normalize($this->config->getSuperOfertaBackgroundColor($storeId))
+            $this->normalizer->normalize($this->config->getSuperOfertaBackgroundColor($storeId)),
+            $thirdPriceAmount
         );
     }
 

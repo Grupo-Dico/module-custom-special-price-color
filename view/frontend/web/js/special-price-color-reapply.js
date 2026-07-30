@@ -14,9 +14,6 @@ define([
     var specialPriceSelector = '.special-price[' + priceColorAttr + '],'
         + '.special-price[' + labelColorAttr + '],'
         + '.special-price[' + bgColorAttr + ']';
-    var thirdPriceSelector = '.lc-third-price[' + priceColorAttr + '],'
-        + '.lc-third-price[' + labelColorAttr + '],'
-        + '.lc-third-price[' + bgColorAttr + ']';
     var hexPattern = /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/;
     var scheduled = false;
 
@@ -43,6 +40,7 @@ define([
     function applyBackground(element, color) {
         if (element && element.style && color) {
             element.style.setProperty('background-color', color, 'important');
+            element.style.setProperty('padding', '1px 5px');
         }
     }
 
@@ -65,30 +63,9 @@ define([
         }
 
         if (bgColor) {
-            applyBackground(specialPrice, bgColor);
-        }
-    }
-
-    function applyToThirdPrice(thirdPrice) {
-        var labelColor = getHex(thirdPrice, labelColorAttr);
-        var priceColor = getHex(thirdPrice, priceColorAttr);
-        var bgColor = getHex(thirdPrice, bgColorAttr);
-        var $thirdPrice = $(thirdPrice);
-
-        if (labelColor) {
-            $thirdPrice.find('.lc-third-price__label').each(function () {
-                applyColor(this, labelColor);
+            $specialPrice.find('.price').each(function () {
+                applyBackground(this, bgColor);
             });
-        }
-
-        if (priceColor) {
-            $thirdPrice.find('.lc-third-price__amount').each(function () {
-                applyColor(this, priceColor);
-            });
-        }
-
-        if (bgColor) {
-            applyBackground(thirdPrice, bgColor);
         }
     }
 
@@ -111,7 +88,7 @@ define([
         }
 
         if (bgColor) {
-            $priceBox.find('.special-price').each(function () {
+            $priceBox.find('.special-price .price').each(function () {
                 applyBackground(this, bgColor);
             });
         }
@@ -126,9 +103,6 @@ define([
 
         observer = new window.MutationObserver(function () {
             applyFromPriceBox(priceBox);
-            $(priceBox).find(thirdPriceSelector).each(function () {
-                applyToThirdPrice(this);
-            });
         });
 
         observer.observe(priceBox, { childList: true, subtree: true });
@@ -142,10 +116,6 @@ define([
 
         $(specialPriceSelector).each(function () {
             applyToSpecialPrice(this);
-        });
-
-        $(thirdPriceSelector).each(function () {
-            applyToThirdPrice(this);
         });
 
         $(priceBoxSelector).each(function () {
